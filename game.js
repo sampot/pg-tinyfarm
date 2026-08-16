@@ -1,0 +1,5 @@
+export const STAGES=["wild","tilled","planted","growing","ripe","empty"];
+export function newSeason(seconds=75,plots=9){return{time:seconds,plots:Array.from({length:plots},()=>({stage:"wild"})),coins:0,harvested:0,crate:0,over:false,message:"整地開始！"}}
+export function act(s,i,a){if(s.over||!s.plots[i])return s;const n={...s,plots:s.plots.map(p=>({...p}))};const p=n.plots[i];const ok={till:"wild",plant:"tilled",water:"planted",harvest:"ripe",sell:"empty"};if(a==="water"&&p.stage==="growing"){p.stage="ripe";n.message="成熟了！";return n}if(p.stage!==ok[a]){n.message="現在不能這麼做";return n}if(a==="till")p.stage="tilled";if(a==="plant")p.stage="planted";if(a==="water")p.stage="growing";if(a==="harvest"){p.stage="empty";n.crate++;n.harvested++}if(a==="sell"){if(n.crate<1){n.message="箱子是空的";return s}n.crate--;n.coins+=12;p.stage="wild"}n.message={till:"土鬆好了",plant:"種子入土",water:"澆水完成",harvest:"收進箱子",sell:"賣出 12 金"}[a];return n}
+export function tick(s,dt=1){const time=Math.max(0,s.time-dt);return{...s,time,over:time<=0,message:time<=0?"季節結束！":s.message}}
+export function score(s){return s.coins+s.harvested*100}
